@@ -1,0 +1,30 @@
+# https://docs.portainer.io/start/install-ce/server/docker/linux
+#- 9000:9000 #Legacy http port
+#- 8000:8000 #For Edge Computing
+
+name: portainer
+services:
+  portainer:
+    image: portainer/portainer-ce:latest 
+    container_name: portainer
+    restart: always
+    ports:
+      - 9443:9443
+      - 9000:9000
+    volumes:
+      - ${DATADIR}/portainer/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:
+    name: frontend
+    driver: bridge
+  backend:
+    name: backend
+    driver: bridge
+
+env_file:
+  - path: ./env.env
