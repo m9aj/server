@@ -14,7 +14,7 @@ services:
       - ${MEDIADIR}/Comics:/comics
       - ${MEDIADIR}/Manga:/manga
     restart: unless-stopped
-    networks:S
+    networks:
       - frontend
 
 networks:
