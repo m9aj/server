@@ -36,3 +36,9 @@ country code, please add "default_phone_region" with the respective ISO 3166-1 c
   'enable_previews' => true,
 
 triceps aside cardboard debug supremacy catching courier devotee
+
+
+  'overwriteprotocol' => 'https',
+  'maintenance_window_start' => 11,
+  'default_phone_region' => 'US',
+  'enable_previews' => true,

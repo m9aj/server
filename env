@@ -1,4 +1,4 @@
-DATADIR=/mnt/docker-volumes
+DATADIR=/mnt/docker_volumes
 MEDIADIR=/mnt/Valkyrie
 MEDIADIR1=/mnt/Ironwolf
 TZ=America/Los_Angeles
