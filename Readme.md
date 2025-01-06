@@ -1,7 +1,7 @@
 https://www.github.com/m9aj/server
 
 adguard/docker-compose.yaml
-audio-bookshelf/docker-compose.yaml
+audiobookshelf/docker-compose.yaml
 bind9/docker-compose.yaml
 home-assistant/docker-compose.yaml
 homepage/docker-compose.yaml
