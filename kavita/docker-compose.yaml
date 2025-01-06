@@ -7,7 +7,7 @@ services:
       - PGID=1000
       - TZ=${TZ}   
     ports:
-      - 5000:5000
+      - 5010:5000
     volumes:
       - ${DATADIR}/kavita/config:/config
       - ${MEDIADIR}/Books:/books
