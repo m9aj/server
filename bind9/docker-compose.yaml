@@ -1,0 +1,12 @@
+services:
+  bind9:
+    container_name: dns_bind9
+    image: ubuntu/bind9:latest
+    environment:
+      - BIND9_USER=root
+      - TZ=${TZ} 
+    volumes:
+      - ${DATADIR}/bind9/config/:/etc/bind
+    network_mode: host
+    restart: unless-stopped
+    

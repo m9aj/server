@@ -1,4 +1,6 @@
 # https://docs.linuxserver.io/images/docker-plex/
+# port 32400/web
+
 services:
   plex:
     image: lscr.io/linuxserver/plex:latest
@@ -7,12 +9,14 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=America/Los_Angeles
       - VERSION=docker
       - PLEX_CLAIM= #optional
     volumes:
       - ${DATADIR}/plex/config:/config
-      - {MEDIADIR}:/Valkyrie
-      - {MEDIADIR1}:/Ironwolf
+      - ${MEDIADIR}:/Valkyrie
+      - ${MEDIADIR1}:/Ironwolf
     restart: unless-stopped
-    
+    devices:
+      - "/dev/dri/card0:/dev/dri/card0"
+      - "/dev/dri/renderD128:/dev/dri/renderD128"

@@ -1,11 +1,21 @@
+# Connect at port 8123
+# https://community.home-assistant.io/t/home-assistant-400-bad-request-docker-proxy-solution/322163
+
 services:
   homeassistant:
     container_name: home-assistant  
     image: ghcr.io/home-assistant/home-assistant:latest
     restart: unless-stopped
+    ports:
+      - '8123:8123'
     volumes:
       - ${DATADIR}/homeassistant/config:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
-    network_mode: host
+    networks:
+      - frontend
 
+networks:
+  frontend:
+    name: frontend
+    external: true

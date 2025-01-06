@@ -1,0 +1,27 @@
+# Port 3000 - Initial config
+# Port 80 - Admin screen
+# Port 53 - DNS
+# Change admin port to 85 on initial config
+
+name: adguard
+services:
+  adguard:
+    image: adguard/adguardhome:latest 
+    container_name: adguard
+    restart: always
+    ports:
+      - '53:53/tcp'
+      - '53:53/udp'
+      - '3000:3000'
+      - '1080:80'
+    volumes:
+      - ${DATADIR}/adguard/work:/opt/adguardhome/work
+      - ${DATADIR}/adguard/conf:/opt/adguardhome/conf
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    name: frontend
+    external: true
+

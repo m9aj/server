@@ -1,0 +1,67 @@
+name: nextcloud
+services:
+  nextcloud-app:
+    image: nextcloud
+    container_name: nextcloud-app
+    restart: unless-stopped
+    ports:
+      - '3080:80'
+    volumes:
+      - ${DATADIR}/nextcloud/html:/var/www/html
+    environment:
+      - NEXTCLOUD_ADMIN_USER=m9ajay
+      - NEXTCLOUD_ADMIN_PASSWORD=Hilary7@
+      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud.moganti.us
+      - PHP_MEMORY_LIMIT=1024M
+      - PHP_UPLOAD_LIMIT=1024M
+      - OVERWRITEPROTOCOL=https
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=afhsi12#$
+      - MYSQL_HOST=nextcloud-db
+      - REDIS_HOST=nextcloud-redis
+    networks:
+      - frontend
+      - backend
+
+  nextcloud-db:
+    image: mariadb:11.4
+    container_name: nextcloud-db
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - ${DATADIR}/nextcloud/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=afhsi12#$
+      - MYSQL_PASSWORD=afhsi12#$
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+    networks:
+      - backend
+
+  nextcloud-redis:
+    image: redis:latest
+    container_name: nextcloud-redis
+    restart: always
+    volumes:
+      - ${DATADIR}/nextcloud/redis:/data
+    networks:
+      - backend
+      
+  nextcloud-cron:
+    container_name: nextcloud-cron
+    image: nextcloud
+    restart: on-failure
+    volumes:
+      - ${DATADIR}/nextcloud/html:/var/www/html
+    entrypoint: /cron.sh
+    networks:
+      - backend
+
+networks:
+  frontend:
+    name: frontend
+    external: true
+  backend:
+    name: backend
+    external: true

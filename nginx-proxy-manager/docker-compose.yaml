@@ -1,0 +1,32 @@
+# https://nginxproxymanager.com/guide/
+# U: admin@example.com P: changeme
+# To create API token in cloudfare. Go to profile > API Tokens > Create token > edit zone DNS > Include All zones, set dates and create token. Then in NPM > SSL > Use DNS challenge > Paste token
+# create A records in cloudfare DNS for each subdomain. 
+
+name: nginx-proxy-manager
+services:
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+    volumes:
+      - ${DATADIR}/nginxproxymanager/data:/data
+      - ${DATADIR}/nginxproxymanager/letsencrypt:/etc/letsencrypt
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:
+    name: frontend
+    external: true
+  backend:
+    name: backend
+    external: true
+

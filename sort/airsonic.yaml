@@ -1,0 +1,18 @@
+services:
+  airsonic:
+    image: lscr.io/linuxserver/airsonic-advanced:latest
+    container_name: airsonic
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - CONTEXT_PATH= #optional
+      - JAVA_OPTS= #optional
+    volumes:
+      - ${DATADIR}/airsonic/config:/config
+      - ${MEDIADIR}/Music:/music
+      #- /path/to/playlists:/playlists
+      #- /path/to/podcasts:/podcasts
+    ports:
+      - 4040:4040
+    restart: unless-stopped

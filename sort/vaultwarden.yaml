@@ -1,0 +1,14 @@
+# https://github.com/dani-garcia/vaultwarden?tab=readme-ov-file
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      DOMAIN: "https://vw.domain.tld"
+    volumes:
+      - ${DATADIR}/vaultwarden/:/data
+    ports:
+      - 6080:80
+      

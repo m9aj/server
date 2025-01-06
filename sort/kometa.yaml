@@ -1,0 +1,12 @@
+services:
+  kometa:
+    image: lscr.io/linuxserver/kometa:latest
+    container_name: kometa
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - /${DATADIR}/kometa/config:/config
+    restart: unless-stopped
+    

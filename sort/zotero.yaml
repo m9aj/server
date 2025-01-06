@@ -1,0 +1,17 @@
+services:
+  zotero:
+    image: lscr.io/linuxserver/zotero:latest
+    container_name: zotero
+    #security_opt:
+    #  - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - ${DATADIR}/zotero/config:/config
+    ports:
+      - 3030:3000 #http
+      - 3031:3001 #https
+    shm_size: "1gb"
+    restart: unless-stopped

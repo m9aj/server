@@ -1,0 +1,29 @@
+# Connect at port 3000 (http) or 3001 (https)
+
+services:
+  obsidian:
+    image: lscr.io/linuxserver/obsidian:latest
+    container_name: obsidian
+    #security_opt:
+      #- seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - ${DATADIR}/obsidian/config:/config
+      - ${DATADIR}/obsidian/data:/data
+    ports:
+      - 3010:3000
+      - 3001:3001
+    devices:
+      - /dev/dri:/dev/dri #optional
+    shm_size: "1gb"
+    restart: unless-stopped
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    name: frontend
+    external: true

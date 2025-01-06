@@ -1,0 +1,36 @@
+services:
+  monica:
+    image: lscr.io/linuxserver/monica:latest
+    container_name: monica
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+      - DB_HOST=monica-db
+      - DB_PORT=
+      - DB_USERNAME=monica
+      - DB_PASSWORD=afhsi12#$
+      - DB_DATABASE=monica
+      #- APP_URL=http://localhost:80 #optional
+      #- TRUSTED_PROXIES= #optional
+      #- APP_ENV=local #optional
+      #- APP_DISABLE_SIGNUP=true #optional
+    volumes:
+      - ${DATADIR}/monica/config:/config
+    ports:
+      - 80:80   #http
+      - 443:443 #https
+    restart: unless-stopped
+    
+  monica-db:
+    image: mariadb:latest
+    container_name: monica-db
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - ${DATADIR}/monica/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=afhsi12#$
+      - MYSQL_PASSWORD=afhsi12#$
+      - MYSQL_DATABASE=monica
+      - MYSQL_USER=monica

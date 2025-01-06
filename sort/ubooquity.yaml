@@ -1,0 +1,21 @@
+#Access the admin page at http://<your-ip>:2203/ubooquity/admin and set a password.
+#Then you can access the webui at http://<your-ip>:2202/ubooquity/
+
+services:
+  ubooquity:
+    image: lscr.io/linuxserver/ubooquity:latest
+    container_name: ubooquity
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+      - MAXMEM=1024
+    volumes:
+      - ${DATADIR}/ubooquity/config:/config
+      - ${MEDIADIR}/Books:/books
+      - ${MEDIADIR}/Comics:/comics
+    ports:
+      - 2202:2202 # Library
+      - 2203:2203 # Admin
+    restart: unless-stopped
+    
