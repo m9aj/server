@@ -5,13 +5,19 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=${TZ}
+      - TZ=${TZ}   
+    ports:
+      - 5000:5000
     volumes:
       - ${DATADIR}/kavita/config:/config
       - ${MEDIADIR}/Books:/books
       - ${MEDIADIR}/Comics:/comics
       - ${MEDIADIR}/Manga:/manga
-    ports:
-      - 5000:5000
     restart: unless-stopped
-    
+    networks:S
+      - frontend
+
+networks:
+  frontend:
+    name: frontend
+    external: true

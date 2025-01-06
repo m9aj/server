@@ -8,8 +8,15 @@ services:
       PUID: 1000 # optional, your user id
       PGID: 1000 # optional, your group id
     ports:
-      - 3090:3000
+      - 203000:3000
     volumes:
       - ${DATADIR}/homepage/config:/app/config # Make sure your local config directory exists
       - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
     restart: unless-stopped
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    name: frontend
+    external: true

@@ -9,4 +9,3 @@ services:
       - ${DATADIR}/bind9/config/:/etc/bind
     network_mode: host
     restart: unless-stopped
-    
