@@ -58,6 +58,21 @@ services:
     networks:
       - backend
 
+  nextcloud-collabora:
+    container_name: nextcloud-collabora
+    image: collabora/code:latest
+    cap_add: 
+        - MKNOD
+    environment: 
+        - domain=nextcloud.moganti.us
+    ports:
+        - 1001:1001
+    restart: always
+    volumes:
+        - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - frontend
+
 networks:
   frontend:
     name: frontend
