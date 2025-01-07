@@ -8,6 +8,7 @@ services:
       - '3080:80'
     volumes:
       - ${DATADIR}/nextcloud/html:/var/www/html
+      - ${MEDIADIR}/Cloud/nextcloud_data:/var/www/html/data
     environment:
       - NEXTCLOUD_ADMIN_USER=m9ajay
       - NEXTCLOUD_ADMIN_PASSWORD=Hilary7@
@@ -15,9 +16,6 @@ services:
       - PHP_MEMORY_LIMIT=1024M
       - PHP_UPLOAD_LIMIT=1024M
       - OVERWRITEPROTOCOL=https
-      - MAINTENANCE_WINDOW_START=11
-      - DEFAULT_PHONE_REGION=US
-      - ENABLE_PREVIEWS=true
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=afhsi12#$
