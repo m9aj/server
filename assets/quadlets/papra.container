@@ -1,0 +1,18 @@
+[Unit]
+Description=Papra Container
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=ghcr.io/papra-hq/papra:latest-root
+ContainerName=papra
+Environment=APP_BASE_URL=https://papra.moganti.us
+Environment=TRUSTED_ORIGINS=https://papra.moganti.us
+Secret=papra_auth_secret,type=env,target=AUTH_SECRET
+Volume={DATA_DIR}/papra/app-data:/app/app-data:Z
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=Medical Records
+After=systemd-networkd.service frontend-network.service ollama.service
+Requires=ollama.service
+
+[Container]
+Image=localhost/medical-records:latest
+ContainerName=medical-records
+Network=frontend.network
+Volume={DATA_DIR}/medical-records/data:/data:Z
+Environment=OLLAMA_URL=http://ollama:11434
+Environment=OLLAMA_MODEL=phi4:14b
+Secret=medical_records_secret_key,type=env,target=SECRET_KEY
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

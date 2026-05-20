@@ -1,0 +1,30 @@
+[Unit]
+Description=HortusFox Plant Manager
+After=systemd-networkd.service frontend-network.service backend-network.service hortusfox-db.service
+Requires=hortusfox-db.service
+
+[Container]
+Image=ghcr.io/danielbrendel/hortusfox-web:latest
+ContainerName=hortusfox
+Network=frontend.network
+Network=backend.network
+Volume={DATA_DIR}/hortusfox/images:/var/www/html/public/img:Z
+Volume={DATA_DIR}/hortusfox/logs:/var/www/html/app/logs:Z
+Volume={DATA_DIR}/hortusfox/backup:/var/www/html/public/backup:Z
+Volume={DATA_DIR}/hortusfox/themes:/var/www/html/public/themes:Z
+Volume={DATA_DIR}/hortusfox/migrations:/var/www/html/app/migrations:Z
+Environment=APP_TIMEZONE=America/Los_Angeles
+Environment=DB_HOST=hortusfox_db
+Environment=DB_PORT=3306
+Environment=DB_DATABASE=hortusfox
+Environment=DB_USERNAME=hortusfox
+Environment=DB_CHARSET=utf8mb4
+Secret=hortusfox_admin_email,type=env,target=APP_ADMIN_EMAIL
+Secret=hortusfox_admin_password,type=env,target=APP_ADMIN_PASSWORD
+Secret=hortusfox_db_password,type=env,target=DB_PASSWORD
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=Navidrome Container
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/deluan/navidrome:latest
+ContainerName=navidrome
+Environment=ND_SCANSCHEDULE=1h
+Environment=ND_LOGLEVEL=info
+Environment=ND_SESSIONTIMEOUT=24h
+Volume={DATA_DIR}/navidrome/data:/data:Z
+Volume={MEDIA_DIR}/Music:/music:ro,Z
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

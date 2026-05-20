@@ -1,0 +1,25 @@
+[Unit]
+Description=Vaultwarden Server
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/vaultwarden/server:latest
+ContainerName=vaultwarden
+Volume={DATA_DIR}/vaultwarden/data:/data:Z
+Network=frontend.network
+Environment=WEBSOCKET_ENABLED=true
+Environment=SIGNUPS_ALLOWED=true
+Environment=SMTP_HOST=smtp.gmail.com
+Environment=SMTP_FROM=admin@moganti.us
+Environment=SMTP_PORT=587
+Environment=SMTP_SECURITY=starttls
+Environment=SMTP_USERNAME=ajnc72@gmail.com
+Environment=DOMAIN=https://vaultwarden.moganti.us/
+Secret=vaultwarden_admin_token,type=env,target=ADMIN_TOKEN
+Secret=vaultwarden_smtp_password,type=env,target=SMTP_PASSWORD
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

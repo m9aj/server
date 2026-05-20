@@ -1,0 +1,19 @@
+[Unit]
+Description=Readeck
+After=network-online.target
+
+[Container]
+Image=codeberg.org/readeck/readeck:latest
+ContainerName=readeck
+Volume={DATA_DIR}/readeck/data:/readeck:Z
+Network=frontend.network
+HealthCmd=/bin/readeck healthcheck -config config.toml
+HealthInterval=30s
+HealthTimeout=2s
+HealthRetries=3
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

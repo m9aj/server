@@ -1,0 +1,16 @@
+[Unit]
+Description=Homepage Dashboard
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=ghcr.io/gethomepage/homepage:latest
+ContainerName=homepage
+Environment=HOMEPAGE_ALLOWED_HOSTS=moganti.us
+Volume={DATA_DIR}/homepage/config:/app/config:Z
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=Trilium Notes
+After=network-online.target
+
+[Container]
+Image=docker.io/zadam/trilium:latest
+ContainerName=trilium
+Volume={DATA_DIR}/trilium/data:/home/node/trilium-data:Z
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

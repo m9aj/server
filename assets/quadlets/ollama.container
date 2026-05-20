@@ -1,0 +1,16 @@
+[Unit]
+Description=Ollama LLM Server
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/ollama/ollama:latest
+ContainerName=ollama
+Volume={DATA_DIR}/ollama:/root/.ollama:Z
+Network=frontend.network
+AddDevice=nvidia.com/gpu=all
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

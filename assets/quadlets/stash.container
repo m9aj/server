@@ -1,0 +1,27 @@
+[Unit]
+Description=Stash Server
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/stashapp/stash:latest
+ContainerName=stash
+Network=frontend.network
+Timezone=local
+Volume={DATA_DIR}/stash/config:/root/.stash:Z
+Volume=/run/media/ajay/External/_DUMP:/data:Z
+Volume={DATA_DIR}/stash/metadata:/metadata:Z
+Volume={DATA_DIR}/stash/cache:/cache:Z
+Volume={DATA_DIR}/stash/blobs:/blobs:Z
+Volume={DATA_DIR}/stash/generated:/generated:Z
+Environment=STASH_STASH=/data/
+Environment=STASH_GENERATED=/generated/
+Environment=STASH_METADATA=/metadata/
+Environment=STASH_CACHE=/cache/
+Environment=STASH_PORT=9999
+PublishPort=9999:9999
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

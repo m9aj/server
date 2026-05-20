@@ -1,0 +1,38 @@
+# Podman Infrastructure Configuration
+
+global:
+  directories:
+    data_dir: "/mnt/containers/data"
+    cloud_dir: "/mnt/containers/cloud"
+    media_dir: "/mnt/containers/media"
+
+services:
+  # General Infrastructure
+  networks: { enabled: true }
+
+  # Applications
+  actual: { enabled: true }
+  audiobookshelf: { enabled: true }
+  bentopdf: { enabled: true }
+  cloudflare: { enabled: true }
+  dumbassets: { enabled: true }
+  homepage: { enabled: true }
+  immich: { enabled: true }
+  kavita: { enabled: true }
+  myspeed: { enabled: true }
+  navidrome: { enabled: true }
+  pangolin: { enabled: true }
+  papra: { enabled: true }
+  plex: { enabled: true }
+  readeck: { enabled: true }
+  scrutiny: { enabled: true }
+  stash: { enabled: true }
+  tidarr: { enabled: true }
+  trilium: { enabled: true }
+  vaultwarden: { enabled: true }
+  wallos: { enabled: true }
+  pihole: { enabled: true }
+  hortusfox: { enabled: true }
+  tududi: { enabled: true }
+  medical-records: { enabled: true }
+  ollama: { enabled: true }

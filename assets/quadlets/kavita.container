@@ -1,0 +1,19 @@
+[Unit]
+Description=Kavita Container
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/jvmilazz0/kavita:latest
+ContainerName=kavita
+Environment=TZ=America/Los_Angeles
+Volume={DATA_DIR}/kavita/config:/kavita/config:Z
+Volume={MEDIA_DIR}/Books:/books:Z
+Volume={MEDIA_DIR}/Comics:/comics:Z
+Volume={MEDIA_DIR}/Manga:/manga:Z
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

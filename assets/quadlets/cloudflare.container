@@ -1,0 +1,16 @@
+[Unit]
+Description=Cloudflare Tunnel
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/cloudflare/cloudflared:latest
+ContainerName=cloudflared
+Exec=tunnel --no-autoupdate run
+Secret=cloudflare_token,type=env,target=TUNNEL_TOKEN
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

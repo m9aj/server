@@ -1,0 +1,25 @@
+models:
+  - phi4:14b          # 8.9 GB  — best quality that fits in 10 GB VRAM, strong reasoning (default)
+
+  # --- Small / fast ---
+  # - llama3.2:1b     # 630 MB  — very fast, lightweight tasks
+  # - llama3.2:3b     # 2.0 GB  — good balance of speed and quality
+  # - phi4-mini:3.8b  # 2.5 GB  — strong reasoning for its size
+
+  # --- Mid-range (7–9 B) ---
+  # - llama3.1:8b     # 4.7 GB  — well-rounded, fast, fully in VRAM
+  # - mistral:7b      # 4.1 GB  — solid general purpose
+  # - qwen2.5:7b      # 4.4 GB  — strong at coding and reasoning
+  # - gemma2:9b       # 5.5 GB  — Google, very capable at 9B
+  # - deepseek-r1:8b  # 4.9 GB  — good reasoning/math
+
+  # --- Coding focused ---
+  # - qwen2.5-coder:7b  # 4.4 GB  — best coding model at this size
+  # - codellama:7b      # 3.8 GB  — Meta coding model
+
+  # --- Large (fits in VRAM) ---
+  # - llama3.1:13b    # 7.9 GB  — good but phi4:14b is generally better
+
+  # --- Hybrid GPU+RAM (requires system RAM, slower generation) ---
+  # - llama3.2:32b    # 20 GB   — ~10 GB VRAM + ~10 GB RAM, good quality step up
+  # - llama3.3:70b    # 43 GB   — high quality, viable with 64 GB RAM (spills to RAM beyond 10 GB VRAM)

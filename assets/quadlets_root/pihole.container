@@ -1,0 +1,19 @@
+[Unit]
+Description=Pi-hole DNS Sinkhole
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/pihole/pihole:latest
+ContainerName=pihole
+Network=host
+Volume={DATA_DIR}/pihole/etc-pihole:/etc/pihole:Z
+Volume={DATA_DIR}/pihole/etc-dnsmasq.d:/etc/dnsmasq.d:Z
+Environment=TZ=America/Los_Angeles
+Environment=FTLCONF_webserver_port=8081
+Secret=pihole_webpassword,type=env,target=WEBPASSWORD
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

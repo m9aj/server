@@ -1,0 +1,17 @@
+[Unit]
+Description=Pangolin Tunnel
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/fosrl/newt:latest
+ContainerName=newt
+Environment=PANGOLIN_ENDPOINT=https://pangolin.moganti.us
+Secret=newt_id,type=env,target=NEWT_ID
+Secret=newt_secret,type=env,target=NEWT_SECRET
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

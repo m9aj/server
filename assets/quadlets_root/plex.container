@@ -1,0 +1,21 @@
+[Unit]
+Description=Plex Media Server
+After=network-online.target
+
+[Container]
+Image=lscr.io/linuxserver/plex:latest
+ContainerName=plex
+Environment=PUID=1000
+Environment=PGID=984
+Environment=TZ=America/Los_Angeles
+Environment=VERSION=docker
+Volume={DATA_DIR}/plex/config:/config:Z
+Volume={MEDIA_DIR}:/media:Z
+AddDevice=/dev/dri/renderD128:/dev/dri/renderD128
+Network=host
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

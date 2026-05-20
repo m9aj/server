@@ -1,0 +1,4 @@
+config/secrets.yaml
+helpers/__pycache__/
+logs/
+.claude

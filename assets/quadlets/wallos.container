@@ -1,0 +1,17 @@
+[Unit]
+Description=Wallos - Subscription Tracker
+After=network-online.target
+
+[Container]
+Image=docker.io/bellamy/wallos:latest
+ContainerName=wallos
+Environment=TZ=America/Los_Angeles
+Volume={DATA_DIR}/wallos/db:/var/www/html/db:Z
+Volume={DATA_DIR}/wallos/logos:/var/www/html/images/uploads/logos:Z
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

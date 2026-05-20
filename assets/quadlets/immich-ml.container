@@ -1,0 +1,15 @@
+[Unit]
+Description=Immich Machine Learning
+After=systemd-networkd.service backend-network.service
+
+[Container]
+Image=ghcr.io/immich-app/immich-machine-learning:release
+ContainerName=immich_machine_learning
+Network=backend.network
+Volume=immich-model-cache.volume:/cache
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

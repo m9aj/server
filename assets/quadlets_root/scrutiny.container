@@ -1,0 +1,22 @@
+[Unit]
+Description=Scrutiny - Hard Drive Health Dashboard
+After=network-online.target
+
+[Container]
+Image=ghcr.io/analogj/scrutiny:master-omnibus
+ContainerName=scrutiny
+Volume=/run/udev:/run/udev:ro
+Volume={DATA_DIR}/scrutiny/config:/opt/scrutiny/config:Z
+Volume={DATA_DIR}/scrutiny/influxdb:/opt/scrutiny/influxdb:Z
+AddDevice=/dev/sda
+AddDevice=/dev/sdb
+AddDevice=/dev/sdc
+AddCapability=SYS_RAWIO
+Network=host
+Environment=SCRUTINY_WEB_LISTEN_PORT=8082
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

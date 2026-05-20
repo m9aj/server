@@ -1,0 +1,17 @@
+[Unit]
+Description=Tidarr
+After=network-online.target
+
+[Container]
+Image=docker.io/cstaelen/tidarr:latest
+ContainerName=tidarr
+Volume=/home/ajay/Downloads/tidarr/.tmp:/shared:Z
+Volume=/home/ajay/Downloads/tidarr/music:/music:Z
+PublishPort=8484:8484
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

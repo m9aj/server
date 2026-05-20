@@ -1,0 +1,21 @@
+[Unit]
+Description=DumbAssets Container
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/dumbwareio/dumbassets:latest
+ContainerName=dumbassets
+Volume={DATA_DIR}/dumbassets/data:/app/data:Z
+Environment=SITE_TITLE=DumbAssets
+Environment=BASE_URL=https://assets.moganti.us
+Secret=dumbassets_pin,type=env,target=DUMBASSETS_PIN
+Environment=ALLOWED_ORIGINS=https://assets.moganti.us
+Environment=CURRENCY_CODE=USD
+Environment=CURRENCY_LOCALE=en-US
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

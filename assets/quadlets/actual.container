@@ -1,0 +1,15 @@
+[Unit]
+Description=Actual Budget Server
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/actualbudget/actual-server:latest
+ContainerName=actual
+Volume={DATA_DIR}/actual/data:/data:Z
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,7 @@
+[Unit]
+Description=Shared Frontend Network for Web Traffic
+
+[Network]
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=MySpeed Container
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/germannewsmaker/myspeed:latest
+ContainerName=myspeed
+Volume={DATA_DIR}/myspeed/data:/myspeed/data:Z
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=BentoPDF Container
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=ghcr.io/alam00000/bentopdf:latest
+ContainerName=bentopdf
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

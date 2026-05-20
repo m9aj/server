@@ -1,0 +1,18 @@
+[Unit]
+Description=Audiobookshelf Container
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=ghcr.io/advplyr/audiobookshelf:latest
+ContainerName=audiobookshelf
+Volume={MEDIA_DIR}/Audiobooks:/audiobooks:Z
+Volume={DATA_DIR}/audiobookshelf/config:/config:Z
+Volume={DATA_DIR}/audiobookshelf/metadata:/metadata:Z
+Timezone=local
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
