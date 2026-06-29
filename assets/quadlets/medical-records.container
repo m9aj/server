@@ -9,7 +9,7 @@ ContainerName=medical-records
 Network=frontend.network
 Volume={DATA_DIR}/medical-records/data:/data:Z
 Environment=OLLAMA_URL=http://ollama:11434
-Environment=OLLAMA_MODEL=phi4:14b
+Environment=OLLAMA_MODEL=gemma4:12b
 Secret=medical_records_secret_key,type=env,target=SECRET_KEY
 
 [Service]

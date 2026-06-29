@@ -1,5 +1,5 @@
 models:
-  - phi4:14b          # 8.9 GB  — best quality that fits in 10 GB VRAM, strong reasoning (default)
+  - gemma4:12b        # ~7.5 GB — Google, highly capable multimodal model, excellent for 10 GB VRAM (default)
 
   # --- Small / fast ---
   # - llama3.2:1b     # 630 MB  — very fast, lightweight tasks
@@ -18,7 +18,7 @@ models:
   # - codellama:7b      # 3.8 GB  — Meta coding model
 
   # --- Large (fits in VRAM) ---
-  # - llama3.1:13b    # 7.9 GB  — good but phi4:14b is generally better
+  # - phi4:14b        # 8.9 GB  — best reasoning/logic for 14B size
 
   # --- Hybrid GPU+RAM (requires system RAM, slower generation) ---
   # - llama3.2:32b    # 20 GB   — ~10 GB VRAM + ~10 GB RAM, good quality step up

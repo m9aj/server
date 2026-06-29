@@ -36,3 +36,7 @@ services:
   tududi: { enabled: true }
   medical-records: { enabled: true }
   ollama: { enabled: true }
+  census-calculator: { enabled: true }
+  gemma-chat: { enabled: true }
+  resident-schedule: { enabled: true }
+

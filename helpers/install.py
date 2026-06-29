@@ -109,7 +109,10 @@ def install_update_timer():
 
     run_sudo(["tee", "/etc/systemd/system/podman-update.service"], input_text=service_content)
     run_sudo(["tee", "/etc/systemd/system/podman-update.timer"],   input_text=timer_content)
-    run_sudo(["systemctl", "daemon-reload"])
+    try:
+        run_sudo(["systemctl", "daemon-reload"])
+    except Exception as e:
+        print(f"  Warning: Root systemd daemon-reload skipped: {e}")
     run_sudo(["systemctl", "enable", "--now", "podman-update.timer"])
     print("  Installed: podman-update.timer (Sundays 3am)")
 
@@ -117,7 +120,10 @@ def install_update_timer():
 def reload_daemons():
     step("Reloading systemd daemons")
     run(["systemctl", "--user", "daemon-reload"])
-    run_sudo(["systemctl", "daemon-reload"])
+    try:
+        run_sudo(["systemctl", "daemon-reload"])
+    except Exception as e:
+        print(f"  Warning: Root systemd daemon-reload skipped: {e}")
     print("  Done")
 
 
@@ -273,8 +279,8 @@ def sync_secrets(config_dir):
             text=True,
         )
         if result.returncode != 0:
-            print("  ERROR: age decryption failed")
-            sys.exit(1)
+            print("  Warning: age decryption failed. Skipping secrets sync and proceeding with existing secrets.")
+            return
         content = result.stdout
     elif plain_path.exists():
         content = plain_path.read_text()

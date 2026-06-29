@@ -1,0 +1,17 @@
+[Unit]
+Description=Resident and Attending Schedule Portal
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=localhost/resident-schedule:latest
+ContainerName=resident-schedule
+Network=frontend.network
+Volume=/mnt/containers/data/resident-schedule:/app/data:Z
+Secret=resident_schedule_password,type=env,target=SCHEDULE_PASSWORD
+
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
