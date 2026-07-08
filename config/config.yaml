@@ -23,10 +23,10 @@ services:
   navidrome: { enabled: true }
   pangolin: { enabled: true }
   papra: { enabled: true }
-  plex: { enabled: true }
+  plex: { enabled: true, backup: false }
   readeck: { enabled: true }
   scrutiny: { enabled: true }
-  stash: { enabled: true }
+  stash: { enabled: true, backup: false }
   tidarr: { enabled: true }
   trilium: { enabled: true }
   vaultwarden: { enabled: true }
@@ -35,8 +35,9 @@ services:
   hortusfox: { enabled: true }
   tududi: { enabled: true }
   medical-records: { enabled: true }
-  ollama: { enabled: true }
+  ollama: { enabled: true, backup: false }
   census-calculator: { enabled: true }
   gemma-chat: { enabled: true }
   resident-schedule: { enabled: true }
+  resident-lectures: { enabled: true }
 

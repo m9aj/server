@@ -3,7 +3,7 @@ Description=Immich Postgres Database
 After=systemd-networkd.service backend-network.service
 
 [Container]
-Image=docker.io/tensorchord/pgvecto-rs:pg14-v0.2.0@sha256:739cdd626151ff1f796dc95a6591b55a714f341c737e27f045019ceabf8e8c52
+Image=ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
 ContainerName=immich_postgres
 Network=backend.network
 Volume={DATA_DIR}/immich/postgres:/var/lib/postgresql/data:Z
@@ -11,7 +11,6 @@ Environment=POSTGRES_USER=postgres
 Environment=POSTGRES_DB=immich
 Environment=POSTGRES_INITDB_ARGS=--data-checksums
 Secret=immich_db_password,type=env,target=POSTGRES_PASSWORD
-Exec=postgres -c shared_preload_libraries=vectors.so -c 'search_path="$user", public, vectors' -c logging_collector=on -c max_wal_size=2GB -c shared_buffers=512MB -c wal_compression=on
 
 [Service]
 Restart=always

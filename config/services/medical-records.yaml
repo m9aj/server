@@ -1,4 +1,4 @@
 build:
-  context: /mnt/Personal/_Ajay/Arch/projects/Medical Records
+  context: /mnt/Personal/_Ajay/Arch/projects/medical_records
   image: localhost/medical-records:latest
-  command: podman build -t localhost/medical-records:latest "/mnt/Personal/_Ajay/Arch/projects/Medical Records"
+  command: podman build -t localhost/medical-records:latest "/mnt/Personal/_Ajay/Arch/projects/medical_records"

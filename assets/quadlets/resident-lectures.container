@@ -1,0 +1,16 @@
+[Unit]
+Description=Resident Lectures and Academic Calendar Portal
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=localhost/resident-lectures:latest
+ContainerName=resident-lectures
+Network=frontend.network
+Volume={DATA_DIR}/resident-lectures:/app/data:Z
+Secret=resident_lectures_password,type=env,target=LECTURES_PASSWORD
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

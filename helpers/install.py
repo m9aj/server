@@ -20,6 +20,7 @@ SERVICES_CFG_DIR  = CONFIG_DIR / "services"
 
 LOGS_DIR         = Path.home() / ".local/state/podman-server"
 UPDATE_BIN       = Path.home() / ".local/bin/podman-server-update"
+BACKUP_BIN       = Path.home() / ".local/bin/podman-server-backup"
 USER_QUADLETS    = Path.home() / ".config/containers/systemd"
 ROOT_QUADLETS    = Path("/etc/containers/systemd")
 ROOT_WANTS_DIR   = Path("/etc/systemd/system/default.target.wants")
@@ -76,6 +77,14 @@ def setup_quadlet_dirs():
     print(f"  {ROOT_QUADLETS}")
 
 
+def setup_sudoers():
+    step("Configuring passwordless sudo for systemctl, podman, and tar")
+    sudoers_content = "ajay ALL=(ALL) NOPASSWD: /usr/bin/systemctl, /usr/bin/podman, /usr/bin/tar\n"
+    run_sudo(["tee", "/etc/sudoers.d/podman-server"], input_text=sudoers_content)
+    print("  Created /etc/sudoers.d/podman-server")
+
+
+
 def install_update_timer():
     step("Installing update script and timer")
 
@@ -85,7 +94,6 @@ def install_update_timer():
     UPDATE_BIN.chmod(0o755)
     print(f"  Installed: {UPDATE_BIN}")
 
-    log_file = LOGS_DIR / "update.log"
     service_content = (
         "[Unit]\n"
         "Description=Podman container image updater\n"
@@ -94,8 +102,6 @@ def install_update_timer():
         "Type=oneshot\n"
         "User=ajay\n"
         f"ExecStart={UPDATE_BIN}\n"
-        f"StandardOutput=append:{log_file}\n"
-        f"StandardError=append:{log_file}\n"
     )
     timer_content = (
         "[Unit]\n"
@@ -115,6 +121,44 @@ def install_update_timer():
         print(f"  Warning: Root systemd daemon-reload skipped: {e}")
     run_sudo(["systemctl", "enable", "--now", "podman-update.timer"])
     print("  Installed: podman-update.timer (Sundays 3am)")
+
+
+def install_backup_timer():
+    step("Installing backup script and timer")
+
+    # Install standalone backup script
+    BACKUP_BIN.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(SCRIPT_DIR / "helpers/backup.py", BACKUP_BIN)
+    BACKUP_BIN.chmod(0o755)
+    print(f"  Installed: {BACKUP_BIN}")
+
+    service_content = (
+        "[Unit]\n"
+        "Description=Podman server data directory backup utility\n"
+        "After=network-online.target\n\n"
+        "[Service]\n"
+        "Type=oneshot\n"
+        "User=ajay\n"
+        f"ExecStart={BACKUP_BIN}\n"
+    )
+    timer_content = (
+        "[Unit]\n"
+        "Description=Daily podman container database backup\n\n"
+        "[Timer]\n"
+        "OnCalendar=*-*-* 02:00:00\n"
+        "Persistent=true\n\n"
+        "[Install]\n"
+        "WantedBy=timers.target\n"
+    )
+
+    run_sudo(["tee", "/etc/systemd/system/podman-backup.service"], input_text=service_content)
+    run_sudo(["tee", "/etc/systemd/system/podman-backup.timer"],   input_text=timer_content)
+    try:
+        run_sudo(["systemctl", "daemon-reload"])
+    except Exception as e:
+        print(f"  Warning: Root systemd daemon-reload skipped: {e}")
+    run_sudo(["systemctl", "enable", "--now", "podman-backup.timer"])
+    print("  Installed: podman-backup.timer (Daily 2am)")
 
 
 def reload_daemons():
@@ -343,7 +387,9 @@ def main():
 
     run_step("podman_install",   install_podman)
     run_step("quadlet_dirs",     setup_quadlet_dirs)
+    run_step("sudoers_setup",    setup_sudoers)
     run_step("update_timer",     install_update_timer)
+    run_step("backup_timer",     install_backup_timer)
 
     reload_daemons()
 

@@ -1,6 +1,6 @@
-# CLAUDE.md
+# Instructions.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance for developers and AI assistants when working with code in this repository.
 
 ## Project Overview
 
