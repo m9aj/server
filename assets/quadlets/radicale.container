@@ -7,7 +7,6 @@ Image=ghcr.io/kozea/radicale:stable
 ContainerName=radicale
 Volume={DATA_DIR}/radicale/config:/etc/radicale:Z,U
 Volume={DATA_DIR}/radicale/collections:/var/lib/radicale/collections:Z,U
-PublishPort=5232:5232
 Network=frontend.network
 
 [Service]
