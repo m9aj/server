@@ -1,0 +1,16 @@
+[Unit]
+Description=Calino Web Calendar Client
+After=systemd-networkd.service frontend-network.service radicale.service
+
+[Container]
+Image=ghcr.io/ivan-malinovski/calino:latest
+ContainerName=calino
+Volume={DATA_DIR}/calino/Caddyfile:/etc/caddy/Caddyfile:ro,Z
+PublishPort=8085:8080
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

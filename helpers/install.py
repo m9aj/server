@@ -260,10 +260,19 @@ def start_service(level, service_names):
         print(f"  Started {svc} ({level})")
 
 
+HOST_NETWORK_PORTS = {
+    "plex": ["32400/tcp"],
+    "homeassistant": ["8123/tcp"],
+}
+
+
 def collect_ports(service_names):
     """Scan container assets for PublishPort entries and return firewall port strings."""
     ports = set()
     for name in service_names:
+        if name in HOST_NETWORK_PORTS:
+            for p in HOST_NETWORK_PORTS[name]:
+                ports.add(p)
         for src_dir in [ASSETS_DIR / "quadlets", ASSETS_DIR / "quadlets_root"]:
             files = sorted(src_dir.glob(f"{name}.container")) + sorted(src_dir.glob(f"{name}-*.container"))
             for f in files:
@@ -280,10 +289,16 @@ def collect_ports(service_names):
 def open_firewall_ports(ports):
     step("Opening firewall ports")
     for port in ports:
-        run_sudo(["firewall-cmd", "--zone=public", f"--add-port={port}", "--permanent"])
-        print(f"  Opened {port}")
-    run_sudo(["firewall-cmd", "--reload"])
-    print("  Reloaded")
+        try:
+            run_sudo(["firewall-cmd", "--zone=public", f"--add-port={port}", "--permanent"])
+            print(f"  Opened {port}")
+        except Exception as e:
+            print(f"  Warning: Root firewall-cmd skipped for {port}: {e}")
+    try:
+        run_sudo(["firewall-cmd", "--reload"])
+        print("  Reloaded")
+    except Exception as e:
+        print(f"  Warning: Root firewall-cmd reload skipped: {e}")
 
 
 def run_hook(name, phase, dirs):

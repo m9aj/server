@@ -14,6 +14,7 @@ services:
   actual: { enabled: true }
   audiobookshelf: { enabled: true }
   bentopdf: { enabled: true }
+  calibre-web: { enabled: true }
   cloudflare: { enabled: true }
   dumbassets: { enabled: true }
   homepage: { enabled: true }
@@ -31,7 +32,7 @@ services:
   trilium: { enabled: true }
   vaultwarden: { enabled: true }
   wallos: { enabled: true }
-  pihole: { enabled: true }
+  pihole: { enabled: false }
   hortusfox: { enabled: true }
   tududi: { enabled: true }
   medical-records: { enabled: true }
@@ -40,4 +41,8 @@ services:
   gemma-chat: { enabled: true }
   resident-schedule: { enabled: true }
   resident-lectures: { enabled: true }
+  homeassistant: { enabled: true }
 
+  radicale: { enabled: true }
+  calino: { enabled: true }
+  super-productivity: { enabled: true }

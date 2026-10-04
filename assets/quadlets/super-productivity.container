@@ -1,0 +1,15 @@
+[Unit]
+Description=Super Productivity Web App
+After=systemd-networkd.service frontend-network.service
+
+[Container]
+Image=docker.io/johannesjo/super-productivity:latest
+ContainerName=super-productivity
+PublishPort=8088:80
+Network=frontend.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
