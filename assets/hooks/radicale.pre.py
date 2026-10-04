@@ -21,6 +21,7 @@ config_file = config_dir / "config"
 if not config_file.exists():
     print(f"  Creating default Radicale config at {config_file}...")
     config_content = """[server]
+script_name = /caldav
 hosts = 0.0.0.0:5232
 max_connections = 20
 max_content_length = 100000000

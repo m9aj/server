@@ -12,6 +12,10 @@ if not caddyfile.exists():
     content = """:8080 {
 \troot * /srv
 
+\t# CalDAV / CardDAV well-known service discovery
+\tredir /.well-known/caldav /caldav/ 308
+\tredir /.well-known/carddav /caldav/ 308
+
 \t@options {
 \t\tmethod OPTIONS
 \t\tpath /caldav /caldav/* /caldev /caldev/*
@@ -29,7 +33,9 @@ if not caddyfile.exists():
 \t\turi strip_prefix /caldev
 \t\t@empty path ""
 \t\trewrite @empty /
-\t\treverse_proxy radicale:5232
+\t\treverse_proxy radicale:5232 {
+\t\t\theader_up X-Script-Name /caldav
+\t\t}
 \t}
 
 \thandle {
