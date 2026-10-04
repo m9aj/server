@@ -182,6 +182,7 @@ User-facing services are exposed via a [Pangolin](https://github.com/fosrl/pango
 | plex      | root  | GPU device passthrough (`/dev/dri`) |
 | scrutiny  | root  | Raw disk access (`/dev/sda`, `AddCapability=SYS_RAWIO`) |
 | pihole    | root  | Binds to host port 53 (DNS) |
+| homeassistant | root | Local device discovery (`Network=host`, mDNS/SSDP) |
 | all others | user | Standard rootless containers |
 
 Root services get persistent boot symlinks installed to `/etc/systemd/system/default.target.wants/` so they auto-start reliably across reboots.

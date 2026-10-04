@@ -49,7 +49,13 @@ level = info
 rights_file = config_dir / "rights"
 if not rights_file.exists():
     print(f"  Creating default Radicale rights file at {rights_file}...")
-    rights_content = """# Allow authenticated users full read/write to their own collections
+    rights_content = """# Allow authenticated users to read root for CalDAV discovery
+[root]
+user = .+
+collection = 
+permissions = R
+
+# Allow authenticated users full read/write to their own collections
 [owner-write]
 user = .+
 collection = {user}(/.*)?
@@ -65,7 +71,6 @@ permissions = Rr
 
 # 3. Read credentials from secrets
 def get_secret(key):
-    # Check config/secrets.yaml first
     plain_path = script_dir / "config" / "secrets.yaml"
     if plain_path.exists():
         try:
@@ -76,7 +81,6 @@ def get_secret(key):
         except Exception:
             pass
 
-    # Check encrypted secrets.yaml.age if present
     age_path = script_dir / "config" / "secrets.yaml.age"
     if age_path.exists():
         try:
@@ -88,7 +92,6 @@ def get_secret(key):
         except Exception:
             pass
 
-    # Fallback to podman secret store
     try:
         res = subprocess.run(["podman", "secret", "inspect", "--showsecret", key], capture_output=True, text=True)
         if res.returncode == 0:
