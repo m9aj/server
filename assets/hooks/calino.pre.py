@@ -14,7 +14,7 @@ if not caddyfile.exists():
 
 \t@options {
 \t\tmethod OPTIONS
-\t\tpath /caldav/* /caldev/*
+\t\tpath /caldav /caldav/* /caldev /caldev/*
 \t}
 \thandle @options {
 \t\theader Access-Control-Allow-Origin *
@@ -23,13 +23,12 @@ if not caddyfile.exists():
 \t\trespond "" 204
 \t}
 
-\thandle /caldev/* {
-\t\turi strip_prefix /caldev
-\t\treverse_proxy radicale:5232
-\t}
-
-\thandle /caldav/* {
+\t@caldav path /caldav /caldav/* /caldev /caldev/*
+\thandle @caldav {
 \t\turi strip_prefix /caldav
+\t\turi strip_prefix /caldev
+\t\t@empty path ""
+\t\trewrite @empty /
 \t\treverse_proxy radicale:5232
 \t}
 
