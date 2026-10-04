@@ -14,13 +14,18 @@ if not caddyfile.exists():
 
 \t@options {
 \t\tmethod OPTIONS
-\t\tpath /caldav/*
+\t\tpath /caldav/* /caldev/*
 \t}
 \thandle @options {
 \t\theader Access-Control-Allow-Origin *
 \t\theader Access-Control-Allow-Methods "GET, POST, PUT, DELETE, PROPFIND, PROPPATCH, REPORT, OPTIONS, MKCOL, MKCALENDAR, COPY, MOVE"
 \t\theader Access-Control-Allow-Headers "Authorization, Content-Type, Depth, Prefer, If-None-Match, If-Match"
 \t\trespond "" 204
+\t}
+
+\thandle /caldev/* {
+\t\turi strip_prefix /caldev
+\t\treverse_proxy radicale:5232
 \t}
 
 \thandle /caldav/* {
