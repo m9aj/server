@@ -13,7 +13,7 @@ Environment=SMTP_HOST=smtp.gmail.com
 Environment=SMTP_FROM=admin@moganti.us
 Environment=SMTP_PORT=587
 Environment=SMTP_SECURITY=starttls
-Environment=SMTP_USERNAME=ajnc72@gmail.com
+Secret=vaultwarden_smtp_username,type=env,target=SMTP_USERNAME
 Environment=DOMAIN=https://vaultwarden.moganti.us/
 Secret=vaultwarden_admin_token,type=env,target=ADMIN_TOKEN
 Secret=vaultwarden_smtp_password,type=env,target=SMTP_PASSWORD
