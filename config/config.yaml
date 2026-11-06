@@ -34,7 +34,6 @@ services:
   vaultwarden: { enabled: true }
   wallos: { enabled: true }
   pihole: { enabled: false }
-  hortusfox: { enabled: true }
   tududi: { enabled: true }
   medical-records: { enabled: true }
   ollama: { enabled: true, backup: false }
