@@ -1,15 +1,22 @@
 [Unit]
 Description=Tududi Task Manager
-After=systemd-networkd.service frontend-network.service
+After=systemd-networkd.service frontend-network.service backend-network.service tududi-db.service
+Requires=tududi-db.service
 
 [Container]
-Image=docker.io/chrisvel/tududi:1.15.0
+Image=docker.io/chrisvel/tududi:latest
 ContainerName=tududi
 Network=frontend.network
-Volume={DATA_DIR}/tududi/db:/app/db:Z
+Network=backend.network
 Volume={DATA_DIR}/tududi/uploads:/app/uploads:Z
+Volume={DATA_DIR}/tududi/backups:/app/backups:Z
 Environment=TUDUDI_TRUST_PROXY=loopback
 Environment=TUDUDI_UPLOAD_PATH=/app/uploads
+Environment=DB_HOST=tududi_db
+Environment=DB_PORT=5432
+Environment=DB_NAME=tududi
+Environment=DB_USER=tududi
+Secret=tududi_db_password,type=env,target=DB_PASSWORD
 Secret=tududi_user_email,type=env,target=TUDUDI_USER_EMAIL
 Secret=tududi_user_password,type=env,target=TUDUDI_USER_PASSWORD
 Secret=tududi_session_secret,type=env,target=TUDUDI_SESSION_SECRET

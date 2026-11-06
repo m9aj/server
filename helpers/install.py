@@ -73,11 +73,14 @@ def setup_quadlet_dirs():
 
     if ROOT_QUADLETS.is_symlink():
         run_sudo(["rm", str(ROOT_QUADLETS)])
-    run_sudo(["mkdir", "-p", str(ROOT_QUADLETS)])
+    elif not ROOT_QUADLETS.exists():
+        run_sudo(["mkdir", "-p", str(ROOT_QUADLETS)])
     print(f"  {ROOT_QUADLETS}")
 
 
 def setup_sudoers():
+    if Path("/etc/sudoers.d/podman-server").exists():
+        return
     step("Configuring passwordless sudo for systemctl, podman, and tar")
     sudoers_content = "ajay ALL=(ALL) NOPASSWD: /usr/bin/systemctl, /usr/bin/podman, /usr/bin/tar\n"
     run_sudo(["tee", "/etc/sudoers.d/podman-server"], input_text=sudoers_content)
@@ -86,6 +89,8 @@ def setup_sudoers():
 
 
 def install_update_timer():
+    if Path("/etc/systemd/system/podman-update.timer").exists():
+        return
     step("Installing update script and timer")
 
     # Install standalone update script
@@ -124,6 +129,8 @@ def install_update_timer():
 
 
 def install_backup_timer():
+    if Path("/etc/systemd/system/podman-backup.timer").exists():
+        return
     step("Installing backup script and timer")
 
     # Install standalone backup script
@@ -405,13 +412,15 @@ def main():
         format="%(asctime)s %(levelname)s %(message)s",
     )
 
-    install_podman()
-    setup_quadlet_dirs()
-    setup_sudoers()
-    install_update_timer()
-    install_backup_timer()
-
-    reload_daemons()
+    if not target:
+        install_podman()
+        setup_quadlet_dirs()
+        setup_sudoers()
+        install_update_timer()
+        install_backup_timer()
+        reload_daemons()
+    else:
+        USER_QUADLETS.mkdir(parents=True, exist_ok=True)
 
     step("Deploying quadlet files")
     network_names  = []
