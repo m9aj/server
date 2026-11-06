@@ -304,7 +304,7 @@ def open_firewall_ports(ports):
 def run_hook(name, phase, dirs):
     hook = HOOKS_DIR / f"{name}.{phase}.py"
     if not hook.exists():
-        return
+        return True
     step(f"Running {name}.{phase} hook")
     env = {
         **os.environ,
@@ -319,10 +319,12 @@ def run_hook(name, phase, dirs):
     result = subprocess.run([sys.executable, str(hook)], env=env)
     if result.returncode != 0:
         if phase == "pre":
-            print(f"  ERROR: pre-hook failed, aborting deploy of '{name}'")
-            sys.exit(1)
+            print(f"  WARNING: pre-hook failed for '{name}' (exit code {result.returncode}), skipping service deployment.")
+            return False
         else:
-            print(f"  WARNING: post-hook exited with code {result.returncode}")
+            print(f"  WARNING: post-hook for '{name}' exited with code {result.returncode}")
+            return False
+    return True
 
 
 def sync_secrets(config_dir):
@@ -416,6 +418,7 @@ def main():
     if not target and services.get("networks", {}).get("enabled"):
         network_names = deploy_networks(dirs)
 
+    failed_services = []
     deploy_targets = {target: services[target]} if target else services
     for name, cfg in deploy_targets.items():
         if name == "networks":
@@ -423,10 +426,19 @@ def main():
         if not cfg.get("enabled"):
             mark_skipped(f"service.{name}")
             continue
-        run_hook(name, "pre", dirs)
-        level, svc_names = deploy_service(name, dirs)
-        if level:
-            service_levels[name] = (level, svc_names)
+        if not run_hook(name, "pre", dirs):
+            mark_failed(f"service.{name}")
+            failed_services.append((name, "pre-hook build failed"))
+            continue
+        try:
+            level, svc_names = deploy_service(name, dirs)
+            if level:
+                service_levels[name] = (level, svc_names)
+        except Exception as e:
+            print(f"  ERROR: Failed to deploy service '{name}': {e}")
+            mark_failed(f"service.{name}")
+            failed_services.append((name, str(e)))
+            continue
 
     reload_daemons()
 
@@ -445,6 +457,11 @@ def main():
         run_hook(name, "post", dirs)
 
     print("\n==> Done")
+    if failed_services:
+        print("\n⚠️  The following services could not be deployed and were skipped:")
+        for s_name, reason in failed_services:
+            print(f"   • {s_name}: {reason}")
+        print("All other services were processed successfully.")
 
 
 if __name__ == "__main__":
