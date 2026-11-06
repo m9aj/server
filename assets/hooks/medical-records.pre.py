@@ -4,7 +4,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-project_dir = Path(os.environ["SCRIPT_DIR"]).parent / "projects" / "medical_records"
+apps_dir = Path(os.environ.get("APPS_DIR", Path(os.environ["SCRIPT_DIR"]).parent / "apps"))
+project_dir = apps_dir / "medical_records"
 
 if not project_dir.exists():
     print(f"  ERROR: project not found at {project_dir}")

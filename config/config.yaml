@@ -5,6 +5,7 @@ global:
     data_dir: "/mnt/containers/data"
     cloud_dir: "/mnt/containers/cloud"
     media_dir: "/mnt/containers/media"
+    apps_dir: "/mnt/Personal/Projects/apps"
 
 services:
   # General Infrastructure

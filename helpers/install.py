@@ -313,6 +313,7 @@ def run_hook(name, phase, dirs):
         "DATA_DIR":       dirs["data_dir"],
         "MEDIA_DIR":      dirs["media_dir"],
         "CLOUD_DIR":      dirs["cloud_dir"],
+        "APPS_DIR":       dirs.get("apps_dir", str(SCRIPT_DIR.parent / "apps")),
         "SCRIPT_DIR":     str(SCRIPT_DIR),
     }
     result = subprocess.run([sys.executable, str(hook)], env=env)

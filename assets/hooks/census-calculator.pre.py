@@ -7,7 +7,8 @@ from pathlib import Path
 
 # Resolve project path relative to server root
 script_dir = Path(os.environ["SCRIPT_DIR"])
-project_dir = script_dir.parent / "projects" / "census_calc"
+apps_dir = Path(os.environ.get("APPS_DIR", Path(os.environ["SCRIPT_DIR"]).parent / "apps"))
+project_dir = apps_dir / "census_calc"
 data_dir = Path(os.environ["DATA_DIR"])
 
 if not project_dir.exists():
