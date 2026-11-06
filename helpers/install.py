@@ -216,38 +216,94 @@ def ensure_volume_dirs(content, is_root):
         print(f"  mkdir {host_path}")
 
 
-def deploy_service(name, dirs):
-    """Returns (level, [service_names]) or (None, []) if no assets found."""
+def is_root_quadlet(src: Path) -> bool:
+    name = src.name.lower()
+    if ".root." in name or ".system." in name:
+        return True
+    try:
+        content = src.read_text()
+        for line in content.splitlines():
+            line = line.strip().lower()
+            if line.startswith("#") and ("scope: root" in line or "scope=root" in line):
+                return True
+            if line.startswith("scope=root") or line.startswith("x-scope=root"):
+                return True
+    except Exception:
+        pass
+    return False
 
+
+def find_service_assets(name, apps_dir):
+    """Find container and volume assets for service `name` across quadlet folders and apps_dir."""
+    # 1. Root assets in server repo
     root_src = ASSETS_DIR / "quadlets_root" / f"{name}.container"
     if root_src.exists():
-        content = substitute(root_src.read_text(), dirs)
-        ensure_volume_dirs(content, is_root=True)
-        dest = ROOT_QUADLETS / root_src.name
-        run_sudo(["tee", str(dest)], input_text=content)
-        print(f"  {root_src.name} (root)")
-        return "root", [name]
+        return [(root_src, True)]
 
+    # 2. Standard user assets in server repo
     user_dir = ASSETS_DIR / "quadlets"
-    containers = sorted(user_dir.glob(f"{name}.container")) + sorted(user_dir.glob(f"{name}-*.container"))
-    volumes    = sorted(user_dir.glob(f"{name}*.volume"))
+    user_containers = sorted(user_dir.glob(f"{name}.container")) + sorted(user_dir.glob(f"{name}-*.container"))
+    user_volumes    = sorted(user_dir.glob(f"{name}*.volume"))
+    if user_containers or user_volumes:
+        return [(src, False) for src in user_containers + user_volumes]
 
-    if not containers and not volumes:
+    # 3. App subdirectories in apps_dir
+    if apps_dir and apps_dir.exists():
+        app_assets = []
+        for app_dir in sorted(apps_dir.iterdir()):
+            if not app_dir.is_dir():
+                continue
+            matched = (
+                sorted(app_dir.glob(f"{name}.container")) +
+                sorted(app_dir.glob(f"{name}.root.container")) +
+                sorted(app_dir.glob(f"{name}.system.container")) +
+                sorted(app_dir.glob(f"{name}-*.container")) +
+                sorted(app_dir.glob(f"{name}-*.root.container")) +
+                sorted(app_dir.glob(f"{name}-*.system.container")) +
+                sorted(app_dir.glob(f"{name}*.volume"))
+            )
+            for src in matched:
+                app_assets.append((src, is_root_quadlet(src)))
+        if app_assets:
+            return app_assets
+
+    return []
+
+
+def deploy_service(name, dirs):
+    """Returns (level, [service_names]) or (None, []) if no assets found."""
+    apps_dir = Path(dirs.get("apps_dir", SCRIPT_DIR.parent / "apps"))
+    assets = find_service_assets(name, apps_dir)
+
+    if not assets:
         print(f"  WARNING: no asset found for '{name}', skipping")
         return None, []
 
+    is_root = any(asset_is_root for _, asset_is_root in assets)
+    level = "root" if is_root else "user"
     service_names = []
-    for src in containers + volumes:
+
+    for src, asset_is_root in assets:
         content = substitute(src.read_text(), dirs)
         if src.suffix == ".container":
-            ensure_volume_dirs(content, is_root=False)
-        dest = USER_QUADLETS / src.name
-        dest.write_text(content)
-        print(f"  {src.name} (user)")
-        if src.suffix == ".container":
-            service_names.append(src.stem)
+            ensure_volume_dirs(content, is_root=asset_is_root)
 
-    return "user", service_names
+        dest_name = src.name.replace(".root.", ".").replace(".system.", ".")
+
+        if asset_is_root:
+            dest = ROOT_QUADLETS / dest_name
+            run_sudo(["tee", str(dest)], input_text=content)
+            print(f"  {dest_name} (root from {src.parent.name})")
+            if src.suffix == ".container":
+                service_names.append(dest.stem)
+        else:
+            dest = USER_QUADLETS / dest_name
+            dest.write_text(content)
+            print(f"  {dest_name} (user from {src.parent.name})")
+            if src.suffix == ".container":
+                service_names.append(dest.stem)
+
+    return level, service_names
 
 
 def start_network(name):
@@ -275,15 +331,24 @@ HOST_NETWORK_PORTS = {
 }
 
 
-def collect_ports(service_names):
+def collect_ports(service_names, apps_dir=None):
     """Scan container assets for PublishPort entries and return firewall port strings."""
     ports = set()
+    search_dirs = [ASSETS_DIR / "quadlets", ASSETS_DIR / "quadlets_root"]
+    if apps_dir and apps_dir.exists():
+        search_dirs.extend([d for d in apps_dir.iterdir() if d.is_dir()])
+
     for name in service_names:
         if name in HOST_NETWORK_PORTS:
             for p in HOST_NETWORK_PORTS[name]:
                 ports.add(p)
-        for src_dir in [ASSETS_DIR / "quadlets", ASSETS_DIR / "quadlets_root"]:
-            files = sorted(src_dir.glob(f"{name}.container")) + sorted(src_dir.glob(f"{name}-*.container"))
+        for src_dir in search_dirs:
+            files = (
+                sorted(src_dir.glob(f"{name}.container")) +
+                sorted(src_dir.glob(f"{name}-*.container")) +
+                sorted(src_dir.glob(f"{name}*.root.container")) +
+                sorted(src_dir.glob(f"{name}*.system.container"))
+            )
             for f in files:
                 for line in f.read_text().splitlines():
                     if not line.startswith("PublishPort="):
@@ -311,10 +376,53 @@ def open_firewall_ports(ports):
 
 
 def run_hook(name, phase, dirs):
-    hook = HOOKS_DIR / f"{name}.{phase}.py"
-    if not hook.exists():
+    apps_dir = Path(dirs.get("apps_dir", SCRIPT_DIR.parent / "apps"))
+    hook = None
+    app_dir = None
+
+    # 1. Check server HOOKS_DIR
+    candidate = HOOKS_DIR / f"{name}.{phase}.py"
+    if candidate.exists():
+        hook = candidate
+
+    # 2. Check apps_dir
+    if not hook and apps_dir.exists():
+        for d in sorted(apps_dir.iterdir()):
+            if not d.is_dir():
+                continue
+            candidates = [
+                d / f"{name}.{phase}.py",
+                d / f"{phase}.py",
+            ]
+            for c in candidates:
+                if c.exists() and (d.name == name or d.name == name.replace("-", "_") or any(d.glob(f"{name}*.container"))):
+                    hook = c
+                    app_dir = d
+                    break
+            if hook:
+                break
+
+    # 3. If phase is pre and no hook found, but app has Containerfile/Dockerfile, auto-build
+    if phase == "pre" and not hook and apps_dir.exists():
+        for d in sorted(apps_dir.iterdir()):
+            if not d.is_dir():
+                continue
+            if d.name == name or d.name == name.replace("-", "_") or any(d.glob(f"{name}*.container")):
+                dockerfile = d / "Containerfile" if (d / "Containerfile").exists() else (d / "Dockerfile" if (d / "Dockerfile").exists() else None)
+                if dockerfile:
+                    step(f"Building local image for {name} from {d.name}")
+                    cmd = ["podman", "build", "-t", f"localhost/{name}:latest", "."]
+                    res = subprocess.run(cmd, cwd=str(d))
+                    if res.returncode != 0:
+                        print(f"  WARNING: build failed for '{name}', skipping service deployment.")
+                        return False
+                    print(f"  Built localhost/{name}:latest successfully")
+                    return True
+
+    if not hook:
         return True
-    step(f"Running {name}.{phase} hook")
+
+    step(f"Running {hook.name} hook")
     env = {
         **os.environ,
         "SERVICE_NAME":   name,
@@ -322,10 +430,10 @@ def run_hook(name, phase, dirs):
         "DATA_DIR":       dirs["data_dir"],
         "MEDIA_DIR":      dirs["media_dir"],
         "CLOUD_DIR":      dirs["cloud_dir"],
-        "APPS_DIR":       dirs.get("apps_dir", str(SCRIPT_DIR.parent / "apps")),
+        "APPS_DIR":       str(apps_dir),
         "SCRIPT_DIR":     str(SCRIPT_DIR),
     }
-    result = subprocess.run([sys.executable, str(hook)], env=env)
+    result = subprocess.run([sys.executable, str(hook)], env=env, cwd=str(app_dir or SCRIPT_DIR))
     if result.returncode != 0:
         if phase == "pre":
             print(f"  WARNING: pre-hook failed for '{name}' (exit code {result.returncode}), skipping service deployment.")
@@ -380,6 +488,7 @@ def print_help(services):
     print("Usage: install [service|help]")
     print()
     print("  install            Full install / redeploy all enabled services")
+    print("  install apps       Deploy and start all custom apps in apps/")
     print("  install <service>  Deploy and start a single service")
     print("  install help       Show this help message")
     print()
@@ -399,10 +508,26 @@ def main():
         print_help(services)
         sys.exit(0)
 
-    if target and target not in services:
+    if target == "apps":
+        apps_path = Path(dirs.get("apps_dir", SCRIPT_DIR.parent / "apps"))
+        app_services = {}
+        if apps_path.exists():
+            for d in sorted(apps_path.iterdir()):
+                if not d.is_dir():
+                    continue
+                for c in sorted(d.glob("*.container")):
+                    svc_name = c.stem.replace(".root", "").replace(".system", "")
+                    app_services[svc_name] = services.get(svc_name, {"enabled": True})
+        if not app_services:
+            print(f"No apps found in {apps_path}")
+            sys.exit(0)
+        deploy_targets = app_services
+    elif target and target not in services:
         print(f"Error: '{target}' not found in config.yaml services")
         print("Run 'install help' to see available services")
         sys.exit(1)
+    else:
+        deploy_targets = {target: services[target]} if target else services
 
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -430,7 +555,6 @@ def main():
         network_names = deploy_networks(dirs)
 
     failed_services = []
-    deploy_targets = {target: services[target]} if target else services
     for name, cfg in deploy_targets.items():
         if name == "networks":
             continue
@@ -455,7 +579,7 @@ def main():
 
     sync_secrets(CONFIG_DIR)
 
-    ports = collect_ports(list(service_levels.keys()))
+    ports = collect_ports(list(service_levels.keys()), apps_dir=Path(dirs.get('apps_dir', SCRIPT_DIR.parent / 'apps')))
     if ports:
         open_firewall_ports(ports)
 
