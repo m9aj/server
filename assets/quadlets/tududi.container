@@ -3,7 +3,7 @@ Description=Tududi Task Manager
 After=systemd-networkd.service frontend-network.service
 
 [Container]
-Image=docker.io/chrisvel/tududi:latest
+Image=docker.io/chrisvel/tududi:1.15.0
 ContainerName=tududi
 Network=frontend.network
 Volume={DATA_DIR}/tududi/db:/app/db:Z
