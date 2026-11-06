@@ -182,8 +182,10 @@ def substitute(content, dirs):
 
 def deploy_networks(dirs):
     deployed = []
+    USER_QUADLETS.mkdir(parents=True, exist_ok=True)
     for src in sorted((ASSETS_DIR / "quadlets").glob("*.network")):
         dest = USER_QUADLETS / src.name
+        dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(substitute(src.read_text(), dirs))
         deployed.append(src.stem)
         print(f"  {src.name}")
@@ -403,11 +405,11 @@ def main():
         format="%(asctime)s %(levelname)s %(message)s",
     )
 
-    run_step("podman_install",   install_podman)
-    run_step("quadlet_dirs",     setup_quadlet_dirs)
-    run_step("sudoers_setup",    setup_sudoers)
-    run_step("update_timer",     install_update_timer)
-    run_step("backup_timer",     install_backup_timer)
+    install_podman()
+    setup_quadlet_dirs()
+    setup_sudoers()
+    install_update_timer()
+    install_backup_timer()
 
     reload_daemons()
 
@@ -450,11 +452,20 @@ def main():
 
     step("Starting services")
     for net_name in network_names:
-        run_step(f"network.{net_name}", lambda n=net_name: start_network(n))
+        try:
+            start_network(net_name)
+        except Exception as e:
+            print(f"  Warning: Failed to start network {net_name}: {e}")
 
     for name, (level, svc_names) in service_levels.items():
-        run_step(f"service.{name}", lambda l=level, s=svc_names: start_service(l, s))
-        run_hook(name, "post", dirs)
+        try:
+            start_service(level, svc_names)
+            mark_done(f"service.{name}")
+            run_hook(name, "post", dirs)
+        except Exception as e:
+            print(f"  FAILED to start {name}: {e}")
+            mark_failed(f"service.{name}")
+            failed_services.append((name, f"failed to start: {e}"))
 
     print("\n==> Done")
     if failed_services:
