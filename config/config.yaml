@@ -45,4 +45,3 @@ services:
 
   radicale: { enabled: true }
   calino: { enabled: true }
-  super-productivity: { enabled: true }
