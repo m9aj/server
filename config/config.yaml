@@ -42,6 +42,5 @@ services:
   resident-schedule: { enabled: true }
   resident-lectures: { enabled: true }
   homeassistant: { enabled: true }
-
   radicale: { enabled: true }
   calino: { enabled: true }
